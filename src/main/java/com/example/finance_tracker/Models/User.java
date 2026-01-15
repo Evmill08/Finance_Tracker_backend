@@ -1,4 +1,6 @@
 package com.example.finance_tracker.Models;
+import java.sql.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +22,18 @@ public class User {
     @Column(nullable=false)
     private String passwordHash;
 
+    @Column(nullable=false)
+    private boolean emailVerified;
+
+    @Column(nullable=true)
+    private String verificationToken;
+
+    @Column(nullable=true)
+    private String resetToken;
+
+    @Column(nullable=true)
+    private Date resetTokenExpiry;
+
     public Long getId()
     {
         return this.Id;
@@ -33,11 +47,44 @@ public class User {
         return this.passwordHash;
     }
 
+    public boolean getEmailVerified(){
+        return this.emailVerified;
+    }
+
+    public String getVerificationToken(){
+        return this.verificationToken;
+    }
+
+    public String getResetToken(){
+        return this.resetToken;
+    }
+
+    public Date getResetTokenExpiry(){
+        return this.resetTokenExpiry;
+    }
+
     public void setEmail(String email){
         this.email = email;
     }
 
     public void setPassword(String hashedPassword){
         this.passwordHash = hashedPassword;
+    }
+
+    public void setEmailVerified(boolean emailVerified){
+        this.emailVerified = emailVerified;
+    }
+
+    public void setVerificationToken(String verificationToken){
+        this.verificationToken = verificationToken;
+    }
+
+    public void setResetToken(String resetToken){
+        this.resetToken = resetToken;
+    }
+    
+
+    public void setResetTokenExpiry(Date resetTokenExpiry){
+        this.resetTokenExpiry = resetTokenExpiry;
     }
 }
