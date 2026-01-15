@@ -2,11 +2,10 @@ package com.example.finance_tracker.Services;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.example.finance_tracker.Repositories.UserRepository;
+
+import com.example.finance_tracker.Models.EmailResult;
 import com.example.finance_tracker.Models.User;
-
-
-
+import com.example.finance_tracker.Repositories.UserRepository;
 
 @Service
 public class EmailService {
@@ -18,17 +17,11 @@ public class EmailService {
         this._passwordEncoder = passwordEncoder;
     }
 
-    public void verifyEmail(){
+    public EmailResult sendVerificationEmail(String email, String token){
 
     }
 
-    public void requestReset(){
+    public EmailResult sendPasswordResetEmail(String email, String token){
 
-    }
-
-    public void resetPassword(String email, String newPassword){
-        User user = _userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Invalid Email"));
-
-        
     }
 }

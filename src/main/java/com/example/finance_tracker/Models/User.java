@@ -1,5 +1,5 @@
 package com.example.finance_tracker.Models;
-import java.sql.Date;
+import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,13 +26,16 @@ public class User {
     private boolean emailVerified;
 
     @Column(nullable=true)
-    private String verificationToken;
+    private String emailVerificationToken;
 
     @Column(nullable=true)
-    private String resetToken;
+    private Instant emailVerificationExpiresAt;
 
     @Column(nullable=true)
-    private Date resetTokenExpiry;
+    private String passwordResetToken;
+
+    @Column(nullable=true)
+    private Instant passwordResetTokenExpiresAt;
 
     public Long getId()
     {
@@ -51,16 +54,20 @@ public class User {
         return this.emailVerified;
     }
 
-    public String getVerificationToken(){
-        return this.verificationToken;
+    public String getEmailVerificationToken(){
+        return this.emailVerificationToken;
     }
 
-    public String getResetToken(){
-        return this.resetToken;
+    public Instant getEmailVerificationExpiresAt(){
+        return this.emailVerificationExpiresAt;
     }
 
-    public Date getResetTokenExpiry(){
-        return this.resetTokenExpiry;
+    public String getPasswordResetToken(){
+        return this.passwordResetToken;
+    }
+
+    public Instant getPasswordResetTokenExpiresAt(){
+        return this.passwordResetTokenExpiresAt;
     }
 
     public void setEmail(String email){
@@ -75,16 +82,19 @@ public class User {
         this.emailVerified = emailVerified;
     }
 
-    public void setVerificationToken(String verificationToken){
-        this.verificationToken = verificationToken;
+    public void setEmailVerificationToken(String emailVerificationToken){
+        this.emailVerificationToken = emailVerificationToken;
     }
 
-    public void setResetToken(String resetToken){
-        this.resetToken = resetToken;
+    public void setEmailVerificationTokenExpiresAt(Instant emailVerificationTokenExpiresAt){
+        this.emailVerificationExpiresAt = emailVerificationTokenExpiresAt;
+    }
+
+    public void setPasswordResetToken(String passwordResetToken){
+        this.passwordResetToken = passwordResetToken;
     }
     
-
-    public void setResetTokenExpiry(Date resetTokenExpiry){
-        this.resetTokenExpiry = resetTokenExpiry;
+    public void setResetTokenExpiry(Instant passwordResetTokenExpiresAt){
+        this.passwordResetTokenExpiresAt = passwordResetTokenExpiresAt;
     }
 }

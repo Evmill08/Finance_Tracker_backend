@@ -1,5 +1,8 @@
 package com.example.finance_tracker.Services;
 
+import java.sql.Date;
+import java.time.Instant;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +15,12 @@ import com.example.finance_tracker.Repositories.UserRepository;
 public class AuthService {
     private final UserRepository _userRepository;
     private final PasswordEncoder _passwordEncoder;
+    private final EmailService _emailService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder){
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService){
         this._userRepository = userRepository;
         this._passwordEncoder = passwordEncoder;
+        this._emailService = emailService;
     }
 
     public AuthResult login(String email, String password){
@@ -37,9 +42,26 @@ public class AuthService {
 
         user.setEmail(email);
         user.setPassword(_passwordEncoder.encode(password));
+        
+        boolean emailverified = false;
+        String emailVerificationToken = "";
+
+        user.setEmailVerified(emailverified);
+        user.setEmailVerificationToken(emailVerificationToken);
+        user.setEmailVerificationTokenExpiresAt( Instant.now()); //TODO: Change this to 1 hour from now
+
+        var emailResult = _emailService.sendVerificationEmail(email, emailVerificationToken);
 
         User saved = _userRepository.save(user);
 
         return new AuthResult(saved.getId(), saved.getEmail());
+    }
+
+    public void requestPasswordReset(String email){
+
+    }
+
+    public AuthResult resetPassword(String token, String newPassword){
+        
     }
 }
