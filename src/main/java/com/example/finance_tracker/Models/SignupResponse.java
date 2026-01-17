@@ -14,7 +14,7 @@ public class SignupResponse {
         return this.userId;
     }
 
-    public String getUserEmail(){
+    public String getEmail(){
         return this.email;
     }
 

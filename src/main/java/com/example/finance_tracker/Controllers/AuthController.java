@@ -2,7 +2,6 @@ package com.example.finance_tracker.Controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.finance_tracker.Models.AuthRequest;
 import com.example.finance_tracker.Models.AuthResponse;
 import com.example.finance_tracker.Models.AuthResult;
+import com.example.finance_tracker.Models.PasswordResetRequest;
 import com.example.finance_tracker.Models.SignupResponse;
+import com.example.finance_tracker.Models.TokenResponse;
 import com.example.finance_tracker.Models.VerificationRequest;
 import com.example.finance_tracker.Services.AuthService;
 import com.example.finance_tracker.Services.JwtService;
@@ -29,16 +30,16 @@ public class AuthController {
         this._jwtService = jwtService;
     }
 
+    //TODO: Do not return jwt
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signup(@RequestBody AuthRequest request){
+    public ResponseEntity<TokenResponse> signup(@RequestBody AuthRequest request){
         try {
             SignupResponse response = _authService.signup(request.email, request.password);
-            String jwt = _jwtService.generate(response.getUserId(), response.getUserEmail()); 
 
-            return ResponseEntity.ok(AuthResponse.success(jwt));
+            return ResponseEntity.ok(TokenResponse.success(response.getVerificationToken()));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(AuthResponse.failure("Invalid email verification"));
+                .body(TokenResponse.failure("Invalid email verification"));
        }
     }
 
@@ -56,7 +57,7 @@ public class AuthController {
     }
 
     // Returns the full use JWT that expires after 24 hours
-    @GetMapping("/verify-email")
+    @PostMapping("/verify-email")
     public ResponseEntity<AuthResponse> verifyEmail(@RequestBody VerificationRequest request) {
         try {
             AuthResult auth = _authService.verifyEmail(request.verificationToken, request.verificationCode);
@@ -70,26 +71,29 @@ public class AuthController {
     }
 
     // Need to take an email, issue temp token, send verification code email, return temp token
-    @PostMapping("/request-reset")
-    public ResponseEntity<AuthResponse> requestPasswordReset(@RequestBody String email) {
+    @PostMapping("/request-password-reset")
+    public ResponseEntity<TokenResponse> requestPasswordReset(@RequestBody String email) {
         try{
-            AuthResult auth = _authService.requestPasswordReset(email);
-
-            String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail());
-            return ResponseEntity.ok(AuthResponse.success(jwt));
+            SignupResponse response = _authService.requestPasswordReset(email);
+           
+            return ResponseEntity.ok(TokenResponse.success(response.getVerificationToken()));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(AuthResponse.failure("Error resetting password"));
+                .body(TokenResponse.failure("Error resetting password"));
         }
     }
 
+    // TODO: Fix response type, don' love it
     // Takes in the code and token, verifies them, resets password
-    @PostMapping("/reset-password")
-    public ResponseEntity<AuthResponse> resetPassword(@RequestBody VerificationRequest request) {
-        //TODO: process POST request
-        
-        return entity;
+    @PostMapping("/confirm-reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetRequest request) {
+        try{
+            AuthResult auth = _authService.resetPassword(request.getVerificationToken(), request.getVerificationCode(), request.getNewPassword());
+
+            return ResponseEntity.ok("Password reset successful");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Password reset unsuccessful");
+        }
     }
-    
-    
 }

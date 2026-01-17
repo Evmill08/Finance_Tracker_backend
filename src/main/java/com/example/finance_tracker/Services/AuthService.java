@@ -35,6 +35,7 @@ public class AuthService {
         this._passwordRepository = passwordRepository;
     }
 
+    // TODO: If failed login, reset to email verification steps not just error
     public AuthResult login(String email, String password){
         User user = _userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Invalid Credentials"));
@@ -43,10 +44,15 @@ public class AuthService {
             throw new RuntimeException("Invalid Password");
         }
 
+        if (!user.getEmailVerified()){
+            throw new RuntimeException("Invalid user");
+        }
+
         return new AuthResult(user.getId(), user.getEmail());
     }
 
     // Returns a temporary token to use when verifying email
+    // TODO: Replace response with just verification code and message
     public SignupResponse signup(String email, String password){
         if (_userRepository.findByEmail(email).isPresent()){
             throw new RuntimeException("Email already exists");
@@ -96,7 +102,8 @@ public class AuthService {
         return new AuthResult(user.getId(), user.getEmail());
     }
 
-    public void requestPasswordReset(String email){
+    // TODO: Just return token and message
+    public SignupResponse requestPasswordReset(String email){
         User user = _userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -109,8 +116,15 @@ public class AuthService {
             Instant.now().plus(15, ChronoUnit.MINUTES),
             user
         );
+
+        _passwordRepository.save(reset);
+
+        EmailResult emailResult = _emailService.sendPasswordResetEmail(email, code);
+
+        return new SignupResponse(user.getId(), user.getEmail(), verificationToken, emailResult);
     }
 
+    // TODO: email and Password validation for everything 
     public AuthResult resetPassword(String verificationToken, String verificationCode, String newPassword){
         PasswordReset reset = _passwordRepository.findByResetToken(verificationToken)
             .orElseThrow(() -> new RuntimeException("Invalid Token"));
