@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.finance_tracker.Models.EmailResult;
+import com.example.finance_tracker.Models.Email.EmailResult;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;

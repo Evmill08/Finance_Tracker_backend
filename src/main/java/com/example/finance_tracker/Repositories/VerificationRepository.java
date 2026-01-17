@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.finance_tracker.Models.EmailVerification;
+import com.example.finance_tracker.Models.Email.EmailVerification;
 
 public interface VerificationRepository extends JpaRepository<EmailVerification, Long>{
     Optional<EmailVerification> findByVerificationToken(String verificationToken);

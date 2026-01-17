@@ -6,16 +6,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.finance_tracker.Models.AuthApiResponse;
-import com.example.finance_tracker.Models.AuthRequest;
-import com.example.finance_tracker.Models.AuthResult;
-import com.example.finance_tracker.Models.PasswordResetRequest;
-import com.example.finance_tracker.Models.TokenResult;
-import com.example.finance_tracker.Models.VerificationRequest;
+import com.example.finance_tracker.Models.Auth.AuthApiResponse;
+import com.example.finance_tracker.Models.Auth.AuthRequest;
+import com.example.finance_tracker.Models.Auth.AuthResult;
+import com.example.finance_tracker.Models.Verification.PasswordResetRequest;
+import com.example.finance_tracker.Models.Verification.TokenResult;
+import com.example.finance_tracker.Models.Verification.VerificationRequest;
 import com.example.finance_tracker.Services.AuthService;
 import com.example.finance_tracker.Services.JwtService;
 
-
+//TODO: Split this into diferent controllers
 @RestController
 @RequestMapping("/auth")
 public class AuthController {

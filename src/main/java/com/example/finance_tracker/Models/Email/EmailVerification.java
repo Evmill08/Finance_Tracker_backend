@@ -1,6 +1,8 @@
-package com.example.finance_tracker.Models;
+package com.example.finance_tracker.Models.Email;
 
 import java.time.Instant;
+
+import com.example.finance_tracker.Models.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package com.example.finance_tracker.Models;
+package com.example.finance_tracker.Models.Verification;
 
 import java.security.SecureRandom;
 import java.time.Instant;

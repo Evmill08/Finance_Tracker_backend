@@ -1,4 +1,4 @@
-package com.example.finance_tracker.Models;
+package com.example.finance_tracker.Models.Email;
 
 public class EmailResult {
     public boolean success;

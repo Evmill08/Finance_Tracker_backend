@@ -1,5 +1,4 @@
 package com.example.finance_tracker.Models;
-import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

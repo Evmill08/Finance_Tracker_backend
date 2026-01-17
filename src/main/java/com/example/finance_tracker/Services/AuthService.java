@@ -6,16 +6,18 @@ import java.time.temporal.ChronoUnit;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.finance_tracker.Models.AuthResult;
-import com.example.finance_tracker.Models.EmailResult;
-import com.example.finance_tracker.Models.EmailVerification;
-import com.example.finance_tracker.Models.PasswordReset;
-import com.example.finance_tracker.Models.TokenResult;
+import com.example.finance_tracker.Models.Auth.AuthResult;
+import com.example.finance_tracker.Models.Email.EmailResult;
+import com.example.finance_tracker.Models.Email.EmailVerification;
 import com.example.finance_tracker.Models.User;
-import com.example.finance_tracker.Models.VerificationFactory;
+import com.example.finance_tracker.Models.Verification.PasswordReset;
+import com.example.finance_tracker.Models.Verification.TokenResult;
+import com.example.finance_tracker.Models.Verification.VerificationFactory;
 import com.example.finance_tracker.Repositories.PasswordRepository;
 import com.example.finance_tracker.Repositories.UserRepository;
 import com.example.finance_tracker.Repositories.VerificationRepository;
+import com.example.finance_tracker.Utils.AuthExceptions.InvalidCredentialsException;
+import com.example.finance_tracker.Utils.AuthExceptions.TokenExpiredException;
 
 
 @Service
@@ -49,29 +51,27 @@ public class AuthService {
             .orElseThrow(() -> new RuntimeException("Invalid Credentials"));
 
         if (!_passwordEncoder.matches(password, user.getPasswordHash())){
-            throw new RuntimeException("Invalid Password");
+            throw new InvalidCredentialsException("Invalid Password");
         }
 
         if (!user.getEmailVerified()){
-            throw new RuntimeException("Invalid user");
+            throw new InvalidCredentialsException("Invalid user");
         }
 
         if (!_authValidationService.validateLogin(email, password)) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
         return new AuthResult(user.getId(), user.getEmail());
     }
 
-    // Returns a temporary token to use when verifying email
-    // TODO: Replace response with just verification code and message
     public TokenResult signup(String email, String password){
         if (_userRepository.findByEmail(email).isPresent()){
-            throw new RuntimeException("Email already exists");
+            throw new InvalidCredentialsException("Email already exists");
         }
 
         if (!_authValidationService.validateLogin(email, password)) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
         User user = new User();
@@ -103,7 +103,7 @@ public class AuthService {
             .orElseThrow(() -> new RuntimeException("Invalid Token"));
 
         if (verification.getExpiresAt().isBefore(Instant.now())){
-            throw new RuntimeException("Token has expired");
+            throw new TokenExpiredException("Token has expired");
         }
 
         if (!verification.getVerificationCode().equals(code)){
@@ -119,10 +119,9 @@ public class AuthService {
         return new AuthResult(user.getId(), user.getEmail());
     }
 
-    // TODO: Just return token and message
     public TokenResult requestPasswordReset(String email){
         User user = _userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new InvalidCredentialsException("User not found"));
 
         String token = VerificationFactory.generateToken();
         String code = VerificationFactory.generateCode();
@@ -142,13 +141,12 @@ public class AuthService {
         return new TokenResult(token, emailResult.message);
     }
 
-    // TODO: email and Password validation for everything 
-    public AuthResult resetPassword(String verificationToken, String verificationCode, String newPassword){
+    public void resetPassword(String verificationToken, String verificationCode, String newPassword){
         PasswordReset reset = _passwordRepository.findByResetToken(verificationToken)
             .orElseThrow(() -> new RuntimeException("Invalid Token"));
 
         if (reset.getExpiresAt().isBefore(Instant.now())){
-            throw new RuntimeException("Token has expired");
+            throw new TokenExpiredException("Token has expired");
         }
 
         if (!reset.getResetCode().equals(verificationCode)){
@@ -156,7 +154,7 @@ public class AuthService {
         }
 
         if (!_authValidationService.validatePassword(newPassword)){
-            throw new RuntimeException("Password is invalid");
+            throw new InvalidCredentialsException("Password is invalid");
         }
 
         User user = reset.getUser();
@@ -168,7 +166,5 @@ public class AuthService {
         user.setPassword(_passwordEncoder.encode(newPassword));
         _userRepository.save(user);
         _passwordRepository.save(reset);
-
-        return new AuthResult(user.getId(), user.getEmail());
     }
 }
