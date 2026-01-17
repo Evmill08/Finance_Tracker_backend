@@ -1,9 +1,7 @@
 package com.example.finance_tracker.Services;
 
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,8 +10,9 @@ import com.example.finance_tracker.Models.AuthResult;
 import com.example.finance_tracker.Models.EmailResult;
 import com.example.finance_tracker.Models.EmailVerification;
 import com.example.finance_tracker.Models.PasswordReset;
-import com.example.finance_tracker.Models.SignupResponse;
+import com.example.finance_tracker.Models.TokenResult;
 import com.example.finance_tracker.Models.User;
+import com.example.finance_tracker.Models.VerificationFactory;
 import com.example.finance_tracker.Repositories.PasswordRepository;
 import com.example.finance_tracker.Repositories.UserRepository;
 import com.example.finance_tracker.Repositories.VerificationRepository;
@@ -26,13 +25,22 @@ public class AuthService {
     private final EmailService _emailService;
     private final VerificationRepository _verificationRepository;
     private final PasswordRepository _passwordRepository;
+    private final AuthValidationService _authValidationService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService, VerificationRepository verificationRepository, PasswordRepository passwordRepository){
+    public AuthService(
+        UserRepository userRepository, 
+        PasswordEncoder passwordEncoder, 
+        EmailService emailService, 
+        VerificationRepository verificationRepository, 
+        PasswordRepository passwordRepository,
+        AuthValidationService authValidationService
+    ){
         this._userRepository = userRepository;
         this._passwordEncoder = passwordEncoder;
         this._emailService = emailService;
         this._verificationRepository = verificationRepository;
         this._passwordRepository = passwordRepository;
+        this._authValidationService = authValidationService;
     }
 
     // TODO: If failed login, reset to email verification steps not just error
@@ -48,36 +56,45 @@ public class AuthService {
             throw new RuntimeException("Invalid user");
         }
 
+        if (!_authValidationService.validateLogin(email, password)) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
         return new AuthResult(user.getId(), user.getEmail());
     }
 
     // Returns a temporary token to use when verifying email
     // TODO: Replace response with just verification code and message
-    public SignupResponse signup(String email, String password){
+    public TokenResult signup(String email, String password){
         if (_userRepository.findByEmail(email).isPresent()){
             throw new RuntimeException("Email already exists");
+        }
+
+        if (!_authValidationService.validateLogin(email, password)) {
+            throw new RuntimeException("Invalid email or password");
         }
 
         User user = new User();
         user.setEmail(email);
         user.setPassword(_passwordEncoder.encode(password));
         user.setEmailVerified(false);
-
-        String verificationToken = UUID.randomUUID().toString();
-        String code = String.format("%06d", new SecureRandom().nextInt(1_000_000));
+        
+        String token = VerificationFactory.generateToken();
+        String code = VerificationFactory.generateCode();
+        Instant expiration = VerificationFactory.generateExpiration(15, ChronoUnit.MINUTES);
 
         EmailVerification verification = new EmailVerification(
-            verificationToken,
+            token,
             code,
-            Instant.now().plus(15, ChronoUnit.MINUTES),
+            expiration,
             user
         );
 
+        EmailResult emailResult = _emailService.sendVerificationEmail(email, code);
+
         _verificationRepository.save(verification);
 
-        EmailResult emailResult = _emailService.sendVerificationEmail(email, code);
-        
-        return new SignupResponse(user.getId(), user.getEmail(), verificationToken, emailResult);
+        return new TokenResult(token, emailResult.message);
     }
 
     // Takes temporary token, verifies it
@@ -103,17 +120,18 @@ public class AuthService {
     }
 
     // TODO: Just return token and message
-    public SignupResponse requestPasswordReset(String email){
+    public TokenResult requestPasswordReset(String email){
         User user = _userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String verificationToken = UUID.randomUUID().toString();
-        String code = String.format("%06d", new SecureRandom().nextInt(1_000_000));
+        String token = VerificationFactory.generateToken();
+        String code = VerificationFactory.generateCode();
+        Instant expiration = VerificationFactory.generateExpiration(15, ChronoUnit.MINUTES);
 
         PasswordReset reset = new PasswordReset(
-            verificationToken,
+            token,
             code,
-            Instant.now().plus(15, ChronoUnit.MINUTES),
+            expiration,
             user
         );
 
@@ -121,7 +139,7 @@ public class AuthService {
 
         EmailResult emailResult = _emailService.sendPasswordResetEmail(email, code);
 
-        return new SignupResponse(user.getId(), user.getEmail(), verificationToken, emailResult);
+        return new TokenResult(token, emailResult.message);
     }
 
     // TODO: email and Password validation for everything 
@@ -137,13 +155,17 @@ public class AuthService {
             throw new RuntimeException("Token is invalid");
         }
 
+        if (!_authValidationService.validatePassword(newPassword)){
+            throw new RuntimeException("Password is invalid");
+        }
+
         User user = reset.getUser();
 
         if (_passwordEncoder.matches(newPassword, user.getPasswordHash())){
             throw new RuntimeException("Password can not be the same as the previous password");
         }
 
-        user.setPassword(newPassword);
+        user.setPassword(_passwordEncoder.encode(newPassword));
         _userRepository.save(user);
         _passwordRepository.save(reset);
 

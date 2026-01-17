@@ -21,8 +21,8 @@ public class EmailService {
     @Value("${sendgrid.api.key}")
     private String sendGridApiKey;
 
-    public EmailResult sendVerificationCodeEmail(String toEmail, String subject, String code) {
-        Email from = new Email("no-reply@financeTracker.com");
+    public EmailResult sendVerificationCodeEmail(String toEmail, String subject, String code){
+        Email from = new Email("financetracker471@gmail.com");
         Email to = new Email(toEmail);
         Content content = new Content("text/plain", "Your verification code is: " + code);
         Mail mail = new Mail(from, subject, to, content);
@@ -38,7 +38,7 @@ public class EmailService {
             return new EmailResult(true, response.getBody());
 
         } catch (IOException ex) {
-            return new EmailResult(false, "Error sending verification email");
+            throw new RuntimeException(ex.getMessage());
         }
     }
 
