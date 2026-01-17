@@ -6,12 +6,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.finance_tracker.Models.AuthRequest;
 import com.example.finance_tracker.Models.AuthResponse;
 import com.example.finance_tracker.Models.AuthResult;
+import com.example.finance_tracker.Models.SignupResponse;
+import com.example.finance_tracker.Models.VerificationRequest;
 import com.example.finance_tracker.Services.AuthService;
 import com.example.finance_tracker.Services.JwtService;
 
@@ -31,8 +32,8 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@RequestBody AuthRequest request){
         try {
-            AuthResult auth = _authService.signup(request.email, request.password);
-            String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail()); 
+            SignupResponse response = _authService.signup(request.email, request.password);
+            String jwt = _jwtService.generate(response.getUserId(), response.getUserEmail()); 
 
             return ResponseEntity.ok(AuthResponse.success(jwt));
         } catch (Exception e){
@@ -54,11 +55,14 @@ public class AuthController {
        }
     }
 
+    //TODO: Think about returning errors instead of them bubbling up to exceptions
     @GetMapping("/verify-email")
-    public ResponseEntity<AuthResponse> verifyEmail(@RequestParam String email) {
+    public ResponseEntity<AuthResponse> verifyEmail(@RequestBody VerificationRequest request) {
         try {
-            EmailResult emailResult = _authService.verifyEmail(email);
-            
+            AuthResult auth = _authService.verifyEmail(request.verificationToken, request.verificationCode);
+
+            String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail());
+            return ResponseEntity.ok(AuthResponse.success(jwt));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(AuthResponse.failure("Email can not be verified"));

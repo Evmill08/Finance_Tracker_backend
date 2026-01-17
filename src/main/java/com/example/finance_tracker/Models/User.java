@@ -25,18 +25,6 @@ public class User {
     @Column(nullable=false)
     private boolean emailVerified;
 
-    @Column(nullable=true)
-    private String emailVerificationToken;
-
-    @Column(nullable=true)
-    private Instant emailVerificationExpiresAt;
-
-    @Column(nullable=true)
-    private String passwordResetToken;
-
-    @Column(nullable=true)
-    private Instant passwordResetTokenExpiresAt;
-
     public Long getId()
     {
         return this.Id;
@@ -54,22 +42,6 @@ public class User {
         return this.emailVerified;
     }
 
-    public String getEmailVerificationToken(){
-        return this.emailVerificationToken;
-    }
-
-    public Instant getEmailVerificationExpiresAt(){
-        return this.emailVerificationExpiresAt;
-    }
-
-    public String getPasswordResetToken(){
-        return this.passwordResetToken;
-    }
-
-    public Instant getPasswordResetTokenExpiresAt(){
-        return this.passwordResetTokenExpiresAt;
-    }
-
     public void setEmail(String email){
         this.email = email;
     }
@@ -80,21 +52,5 @@ public class User {
 
     public void setEmailVerified(boolean emailVerified){
         this.emailVerified = emailVerified;
-    }
-
-    public void setEmailVerificationToken(String emailVerificationToken){
-        this.emailVerificationToken = emailVerificationToken;
-    }
-
-    public void setEmailVerificationTokenExpiresAt(Instant emailVerificationTokenExpiresAt){
-        this.emailVerificationExpiresAt = emailVerificationTokenExpiresAt;
-    }
-
-    public void setPasswordResetToken(String passwordResetToken){
-        this.passwordResetToken = passwordResetToken;
-    }
-    
-    public void setResetTokenExpiry(Instant passwordResetTokenExpiresAt){
-        this.passwordResetTokenExpiresAt = passwordResetTokenExpiresAt;
     }
 }
