@@ -38,7 +38,7 @@ public class AuthController {
             return ResponseEntity.ok(AuthResponse.success(jwt));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(AuthResponse.failure("Invalid email or password"));
+                .body(AuthResponse.failure("Invalid email verification"));
        }
     }
 
@@ -55,7 +55,7 @@ public class AuthController {
        }
     }
 
-    //TODO: Think about returning errors instead of them bubbling up to exceptions
+    // Returns the full use JWT that expires after 24 hours
     @GetMapping("/verify-email")
     public ResponseEntity<AuthResponse> verifyEmail(@RequestBody VerificationRequest request) {
         try {
@@ -69,15 +69,23 @@ public class AuthController {
         }
     }
 
+    // Need to take an email, issue temp token, send verification code email, return temp token
     @PostMapping("/request-reset")
-    public String postMethodName(@RequestBody String entity) {
-        //TODO: process POST request
-        
-        return entity;
+    public ResponseEntity<AuthResponse> requestPasswordReset(@RequestBody String email) {
+        try{
+            AuthResult auth = _authService.requestPasswordReset(email);
+
+            String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail());
+            return ResponseEntity.ok(AuthResponse.success(jwt));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(AuthResponse.failure("Error resetting password"));
+        }
     }
 
+    // Takes in the code and token, verifies them, resets password
     @PostMapping("/reset-password")
-    public String postMethodName2(@RequestBody String entity) {
+    public ResponseEntity<AuthResponse> resetPassword(@RequestBody VerificationRequest request) {
         //TODO: process POST request
         
         return entity;
