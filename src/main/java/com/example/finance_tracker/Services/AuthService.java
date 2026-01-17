@@ -57,11 +57,15 @@ public class AuthService {
         return new AuthResult(saved.getId(), saved.getEmail());
     }
 
+    public void verifyEmail(String email){
+        
+    }
+
     public void requestPasswordReset(String email){
 
     }
 
     public AuthResult resetPassword(String token, String newPassword){
-        
+
     }
 }

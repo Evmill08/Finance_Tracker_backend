@@ -30,33 +30,39 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@RequestBody AuthRequest request){
-       try {
-        AuthResult auth = _authService.signup(request.email, request.password);
-        String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail()); 
+        try {
+            AuthResult auth = _authService.signup(request.email, request.password);
+            String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail()); 
 
-        return ResponseEntity.ok(AuthResponse.success(jwt));
-       } catch (Exception e){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(AuthResponse.failure("Invalid email or password"));
+            return ResponseEntity.ok(AuthResponse.success(jwt));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(AuthResponse.failure("Invalid email or password"));
        }
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request){
         try {
-        AuthResult auth = _authService.login(request.email, request.password);
-        String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail()); 
+            AuthResult auth = _authService.login(request.email, request.password);
+            String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail()); 
 
-        return ResponseEntity.ok(AuthResponse.success(jwt));
+            return ResponseEntity.ok(AuthResponse.success(jwt));
        } catch (Exception e){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(AuthResponse.failure("Invalid email or password"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(AuthResponse.failure("Invalid email or password"));
        }
     }
 
     @GetMapping("/verify-email")
-    public String getMethodName(@RequestParam String param) {
-        return new String();
+    public ResponseEntity<AuthResponse> verifyEmail(@RequestParam String email) {
+        try {
+            EmailResult emailResult = _authService.verifyEmail(email);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(AuthResponse.failure("Email can not be verified"));
+        }
     }
 
     @PostMapping("/request-reset")
