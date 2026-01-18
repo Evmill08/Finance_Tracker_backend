@@ -18,4 +18,15 @@ public class AuthApiResponse<T> {
     public static <T> AuthApiResponse<T> failure(String message){
         return new AuthApiResponse<>(false, null, message);
     }
+
+    public boolean isSuccess(){
+        return this.success;
+    }    
+    public String getMessage(){
+        return this.message;
+    }
+    public T getData(){
+        return this.data;
+    }
+
 }
