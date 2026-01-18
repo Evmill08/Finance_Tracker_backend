@@ -1,12 +1,12 @@
 package com.example.finance_tracker.Models.Verification;
 
 public class PasswordResetRequest {
-    private String verificationToken;
+    private String email;
     private String verificationCode;
     private String newPassword;
 
-    public String getVerificationToken(){
-        return this.verificationToken;
+    public String getEmail(){
+        return this.email;
     }
     public String getVerificationCode(){
         return this.verificationCode;
@@ -15,8 +15,8 @@ public class PasswordResetRequest {
         return this.newPassword;
     }
 
-    public void setVerificationToken(String verificationToken){
-        this.verificationToken = verificationToken;
+    public void setEmail(String email){
+        this.email = email;
     }
 
     public void setVerificationCode(String verificationCode){
@@ -27,8 +27,8 @@ public class PasswordResetRequest {
         this.newPassword = newPassword;
     }
 
-    public PasswordResetRequest(String verificationToken, String verificationCode, String newPassword){
-        this.verificationToken = verificationToken;
+    public PasswordResetRequest(String email, String verificationCode, String newPassword){
+        this.email = email;
         this.verificationCode = verificationCode;
         this.newPassword = newPassword;
     }

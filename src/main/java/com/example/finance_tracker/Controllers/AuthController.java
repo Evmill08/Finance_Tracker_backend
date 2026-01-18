@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.finance_tracker.Models.Auth.AuthApiResponse;
 import com.example.finance_tracker.Models.Auth.AuthRequest;
 import com.example.finance_tracker.Models.Auth.AuthResult;
+import com.example.finance_tracker.Models.Email.EmailRequest;
 import com.example.finance_tracker.Models.Verification.PasswordResetRequest;
 import com.example.finance_tracker.Models.Verification.TokenResult;
 import com.example.finance_tracker.Models.Verification.VerificationRequest;
@@ -51,14 +52,14 @@ public class AuthController {
     }
 
     @PostMapping("/request-password-reset")
-    public ResponseEntity<AuthApiResponse<String>> requestPasswordReset(@RequestBody String email) {
-        TokenResult result = _authService.requestPasswordReset(email);
+    public ResponseEntity<AuthApiResponse<String>> requestPasswordReset(@RequestBody EmailRequest request) {
+        TokenResult result = _authService.requestPasswordReset(request.getEmail());
         return ResponseEntity.ok(AuthApiResponse.success(result.getToken()));
     }
 
-    @PostMapping("/confirm-reset-password")
+    @PostMapping("/confirm-password-reset")
     public ResponseEntity<AuthApiResponse<Object>> resetPassword(@RequestBody PasswordResetRequest request) {
-        _authService.resetPassword(request.getVerificationToken(), request.getVerificationCode(), request.getNewPassword());
+        _authService.resetPassword(request.getEmail(), request.getVerificationCode(), request.getNewPassword());
         return ResponseEntity.ok(AuthApiResponse.success(null));        
     }
 }

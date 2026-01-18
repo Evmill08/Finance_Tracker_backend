@@ -72,4 +72,6 @@ public class PasswordReset {
         this.expiresAt = expiresAt;
         this.user = user;
     }
+    
+    public PasswordReset() {}
 }

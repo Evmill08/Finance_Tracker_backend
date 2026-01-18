@@ -2,6 +2,7 @@ package com.example.finance_tracker.Services;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -100,7 +101,6 @@ public class AuthService {
 
     // Takes temporary token, verifies it
     public AuthResult verifyEmail(String email, String code){
-
         User user = _userRepository.findByEmail(email)
             .orElseThrow(() -> new InvalidCredentialsException("User not found"));
 
@@ -129,6 +129,12 @@ public class AuthService {
         User user = _userRepository.findByEmail(email)
             .orElseThrow(() -> new InvalidCredentialsException("User not found"));
 
+        Optional<PasswordReset> passwordOpt = _passwordRepository.findByUserId(user.getId());
+
+        if (passwordOpt.isPresent()){
+            _passwordRepository.delete(passwordOpt.get());
+        }
+
         String token = VerificationFactory.generateToken();
         String code = VerificationFactory.generateCode();
         Instant expiration = VerificationFactory.generateExpiration(15, ChronoUnit.MINUTES);
@@ -147,8 +153,11 @@ public class AuthService {
         return new TokenResult(token, emailResult.message);
     }
 
-    public void resetPassword(String verificationToken, String verificationCode, String newPassword){
-        PasswordReset reset = _passwordRepository.findByResetToken(verificationToken)
+    public void resetPassword(String email, String verificationCode, String newPassword){
+        User user = _userRepository.findByEmail(email)
+            .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        PasswordReset reset = _passwordRepository.findByUserId(user.getId())
             .orElseThrow(() -> new RuntimeException("Invalid Token"));
 
         if (reset.getExpiresAt().isBefore(Instant.now())){
@@ -162,8 +171,6 @@ public class AuthService {
         if (!_authValidationService.validatePassword(newPassword)){
             throw new InvalidCredentialsException("Password is invalid");
         }
-
-        User user = reset.getUser();
 
         if (_passwordEncoder.matches(newPassword, user.getPasswordHash())){
             throw new RuntimeException("Password can not be the same as the previous password");

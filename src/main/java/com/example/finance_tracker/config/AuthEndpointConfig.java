@@ -19,7 +19,8 @@ public class AuthEndpointConfig {
                     "/auth/signup",
                     "/auth/login",
                     "/auth/verify-email",
-                    "/auth/request-password-reset"
+                    "/auth/request-password-reset",
+                    "/auth/confirm-password-reset"
                 ).permitAll() // public endpoints
                 .anyRequest().authenticated() // everything else requires auth
             );
