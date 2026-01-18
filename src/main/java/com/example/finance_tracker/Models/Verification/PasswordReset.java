@@ -19,7 +19,7 @@ public class PasswordReset {
     
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Column(unique=true, nullable=false)
     private String resetToken;
@@ -31,7 +31,7 @@ public class PasswordReset {
     private Instant expiresAt;
 
     @OneToOne
-    @JoinColumn(name="user_id", nullable=false)
+    @JoinColumn(name="user_id", nullable=false, unique=true)
     private User user;
 
     public String getResetToken(){

@@ -92,14 +92,19 @@ public class AuthService {
 
         EmailResult emailResult = _emailService.sendVerificationEmail(email, code);
 
+        _userRepository.save(user);
         _verificationRepository.save(verification);
 
         return new TokenResult(token, emailResult.message);
     }
 
     // Takes temporary token, verifies it
-    public AuthResult verifyEmail(String verifcationToken, String code){
-        EmailVerification verification = _verificationRepository.findByVerificationToken(verifcationToken)
+    public AuthResult verifyEmail(String email, String code){
+
+        User user = _userRepository.findByEmail(email)
+            .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        EmailVerification verification = _verificationRepository.findByUserId(user.getId())
             .orElseThrow(() -> new RuntimeException("Invalid Token"));
 
         if (verification.getExpiresAt().isBefore(Instant.now())){
@@ -110,11 +115,12 @@ public class AuthService {
             throw new RuntimeException("Token is invalid");
         }
 
-        User user = verification.getVerificationUser();
         user.setEmailVerified(true);
 
         _userRepository.save(user);
         _verificationRepository.save(verification);
+
+        _verificationRepository.delete(verification);
 
         return new AuthResult(user.getId(), user.getEmail());
     }

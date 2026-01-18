@@ -19,7 +19,7 @@ public class EmailVerification {
     
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Column(unique=true, nullable=false)
     private String verificationToken;
@@ -31,7 +31,7 @@ public class EmailVerification {
     private Instant expiresAt;
 
     @OneToOne
-    @JoinColumn(name="user_id", nullable=false)
+    @JoinColumn(name="user_id", nullable=false, unique=true)
     private User user;
 
     public String getVerificationToken(){
@@ -72,4 +72,6 @@ public class EmailVerification {
         this.expiresAt = expiresAt;
         this.user = user;
     }
+
+    public EmailVerification() {}
 }

@@ -16,6 +16,8 @@ import com.example.finance_tracker.Services.AuthService;
 import com.example.finance_tracker.Services.JwtService;
 
 //TODO: Split this into diferent controllers
+// Will require a few more services to accompay the refactor
+// Focus on this later
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -43,7 +45,7 @@ public class AuthController {
 
     @PostMapping("/verify-email")
     public ResponseEntity<AuthApiResponse<String>> verifyEmail(@RequestBody VerificationRequest request) {
-        AuthResult auth = _authService.verifyEmail(request.verificationToken, request.verificationCode);
+        AuthResult auth = _authService.verifyEmail(request.getEmail(), request.getVerificationCode());
         String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail());
         return ResponseEntity.ok(AuthApiResponse.success(jwt));
     }

@@ -13,7 +13,7 @@ public class User {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Column(unique=true, nullable=false)
     private String email;
@@ -26,7 +26,7 @@ public class User {
 
     public Long getId()
     {
-        return this.Id;
+        return this.id;
     }
 
     public String getEmail(){
