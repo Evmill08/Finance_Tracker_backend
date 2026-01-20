@@ -1,4 +1,4 @@
-package com.example.finance_tracker.Models;
+package com.example.finance_tracker.Models.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +24,15 @@ public class User {
     @Column(nullable=false)
     private boolean emailVerified;
 
+    @Column(nullable=false)
+    private String firstName;
+
+    @Column(nullable=false)
+    private String lastName;
+
+    @Column(nullable=false)
+    private boolean hasLinkedPlaid;
+
     public Long getId()
     {
         return this.id;
@@ -37,8 +46,20 @@ public class User {
         return this.passwordHash;
     }
 
-    public boolean getEmailVerified(){
+    public boolean isEmailVerified(){
         return this.emailVerified;
+    }
+
+    public String getFirstName(){
+        return this.firstName;
+    }
+
+    public String getLastName(){
+        return this.lastName;
+    }
+
+    public Boolean hasLinkedPlaid(){
+        return this.hasLinkedPlaid;
     }
 
     public void setEmail(String email){
@@ -49,7 +70,19 @@ public class User {
         this.passwordHash = hashedPassword;
     }
 
-    public void setEmailVerified(boolean emailVerified){
+    public void setIsEmailVerified(boolean emailVerified){
         this.emailVerified = emailVerified;
+    }
+
+    public void setFirstName(String firstName){
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName){
+        this.lastName = lastName;
+    }
+
+    public void setHasLinkedPlaid(Boolean hasLinkedPlaid){
+        this.hasLinkedPlaid = hasLinkedPlaid;
     }
 }

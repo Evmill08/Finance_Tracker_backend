@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.finance_tracker.Models.Auth.AuthResult;
 import com.example.finance_tracker.Models.Email.EmailResult;
 import com.example.finance_tracker.Models.Email.EmailVerification;
-import com.example.finance_tracker.Models.User;
+import com.example.finance_tracker.Models.User.User;
 import com.example.finance_tracker.Models.Verification.PasswordReset;
 import com.example.finance_tracker.Models.Verification.TokenResult;
 import com.example.finance_tracker.Models.Verification.VerificationFactory;
@@ -55,7 +55,7 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid Password");
         }
 
-        if (!user.getEmailVerified()){
+        if (!user.isEmailVerified()){
             throw new InvalidCredentialsException("Invalid user");
         }
 
@@ -78,7 +78,7 @@ public class AuthService {
         User user = new User();
         user.setEmail(email);
         user.setPassword(_passwordEncoder.encode(password));
-        user.setEmailVerified(false);
+        user.setIsEmailVerified(false);
         
         String token = VerificationFactory.generateToken();
         String code = VerificationFactory.generateCode();
@@ -115,7 +115,7 @@ public class AuthService {
             throw new RuntimeException("Token is invalid");
         }
 
-        user.setEmailVerified(true);
+        user.setIsEmailVerified(true);
 
         _userRepository.save(user);
         _verificationRepository.save(verification);
