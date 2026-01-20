@@ -66,7 +66,7 @@ public class AuthService {
         return new AuthResult(user.getId(), user.getEmail());
     }
 
-    public TokenResult signup(String email, String password){
+    public TokenResult signup(String email, String password, String firstName, String lastName){
         if (_userRepository.findByEmail(email).isPresent()){
             throw new InvalidCredentialsException("Email already exists");
         }
@@ -75,11 +75,15 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(_passwordEncoder.encode(password));
-        user.setIsEmailVerified(false);
-        
+        User user = new User(
+            email,
+            _passwordEncoder.encode(password),
+            false,
+            firstName,
+            lastName,
+            false
+        );
+     
         String token = VerificationFactory.generateToken();
         String code = VerificationFactory.generateCode();
         Instant expiration = VerificationFactory.generateExpiration(15, ChronoUnit.MINUTES);

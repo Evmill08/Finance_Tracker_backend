@@ -85,4 +85,15 @@ public class User {
     public void setHasLinkedPlaid(Boolean hasLinkedPlaid){
         this.hasLinkedPlaid = hasLinkedPlaid;
     }
+
+    public User(String email, String passwordHash, Boolean isEmailVerified, String firstName, String lastName, Boolean hasLinkedPlaid){
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.emailVerified = isEmailVerified;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.hasLinkedPlaid = hasLinkedPlaid;
+    }
+
+    public User() {}
 }

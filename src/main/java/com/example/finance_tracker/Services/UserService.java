@@ -19,6 +19,7 @@ public class UserService {
             .orElseThrow(() -> new RuntimeException("User not found")); // Think about this error
 
         return new UserResponse(
+            user.getId(),
             user.getEmail(),
             user.getFirstName(),
             user.getLastName(),

@@ -33,7 +33,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<AuthApiResponse<String>> signup(@RequestBody AuthRequest request){
-        TokenResult result = _authService.signup(request.email, request.password);
+        TokenResult result = _authService.signup(request.email, request.password, request.firstName, request.lastName);
         return ResponseEntity.ok(AuthApiResponse.success(result.getToken()));
     }
 
