@@ -15,7 +15,7 @@ public class UserService {
     }
 
     public UserResponse getUserById(Long userId){
-        User user = _userRepository.findByUserId(userId)
+        User user = _userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found")); // Think about this error
 
         return new UserResponse(
