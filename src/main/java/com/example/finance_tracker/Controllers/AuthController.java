@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.finance_tracker.Models.Auth.AuthApiResponse;
 import com.example.finance_tracker.Models.Auth.AuthRequest;
-import com.example.finance_tracker.Models.Auth.AuthResult;
 import com.example.finance_tracker.Models.Email.EmailRequest;
+import com.example.finance_tracker.Models.User.User;
 import com.example.finance_tracker.Models.Verification.PasswordResetRequest;
 import com.example.finance_tracker.Models.Verification.TokenResult;
 import com.example.finance_tracker.Models.Verification.VerificationRequest;
@@ -31,6 +31,7 @@ public class AuthController {
         this._jwtService = jwtService;
     }
 
+    // TODO: Ensure email hasnt been used before
     @PostMapping("/signup")
     public ResponseEntity<AuthApiResponse<String>> signup(@RequestBody AuthRequest request){
         TokenResult result = _authService.signup(request.email, request.password, request.firstName, request.lastName);
@@ -39,15 +40,15 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthApiResponse<String>> login(@RequestBody AuthRequest request){
-        AuthResult auth = _authService.login(request.email, request.password);
-        String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail()); 
+        User user = _authService.login(request.email, request.password);
+        String jwt = _jwtService.generate(user); 
         return ResponseEntity.ok(AuthApiResponse.success(jwt));
     }
 
     @PostMapping("/verify-email")
     public ResponseEntity<AuthApiResponse<String>> verifyEmail(@RequestBody VerificationRequest request) {
-        AuthResult auth = _authService.verifyEmail(request.getEmail(), request.getVerificationCode());
-        String jwt = _jwtService.generate(auth.getUserId(), auth.getEmail());
+        User user = _authService.verifyEmail(request.getEmail(), request.getVerificationCode());
+        String jwt = _jwtService.generate(user);
         return ResponseEntity.ok(AuthApiResponse.success(jwt));
     }
 

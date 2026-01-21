@@ -7,6 +7,8 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.example.finance_tracker.Models.User.User;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,25 +24,27 @@ public class JwtService {
     }
 
     // Builds a jwt that expires after 1 hour
-    public String generate(Long userId, String email){
+    public String generate(User user) {
         return Jwts.builder()
-            .setSubject(userId.toString())
-            .claim("email", email)
+            .setSubject(user.getId().toString())
+            .claim("email", user.getEmail())
+            .claim("roles", user.getRoles()) 
+            .claim("email_verified", user.isEmailVerified())
             .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
+            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
             .signWith(signingKey, SignatureAlgorithm.HS256)
             .compact();
     }
 
     public Long getUserIdFromToken(String token){
-        return Long.valueOf(getClaims(token).getSubject());
+        return Long.valueOf(validateAndGetClaims(token).getSubject());
     }
 
     public String getUserEmailFromToken(String token){
-        return getClaims(token).get("email", String.class);
+        return validateAndGetClaims(token).get("email", String.class);
     }
 
-    private Claims getClaims(String token){
+    public Claims validateAndGetClaims(String token) {
         return Jwts.parserBuilder()
             .setSigningKey(signingKey)
             .build()

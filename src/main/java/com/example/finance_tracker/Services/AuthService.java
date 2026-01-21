@@ -2,12 +2,12 @@ package com.example.finance_tracker.Services;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.finance_tracker.Models.Auth.AuthResult;
 import com.example.finance_tracker.Models.Email.EmailResult;
 import com.example.finance_tracker.Models.Email.EmailVerification;
 import com.example.finance_tracker.Models.User.User;
@@ -47,7 +47,7 @@ public class AuthService {
     }
 
     // TODO: If failed login, reset to email verification steps not just error
-    public AuthResult login(String email, String password){
+    public User login(String email, String password){
         User user = _userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Invalid Credentials"));
 
@@ -63,7 +63,7 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        return new AuthResult(user.getId(), user.getEmail());
+        return user;
     }
 
     public TokenResult signup(String email, String password, String firstName, String lastName){
@@ -75,13 +75,15 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
+        // TODO: Figure out roles more
         User user = new User(
             email,
             _passwordEncoder.encode(password),
             false,
             firstName,
             lastName,
-            false
+            false,
+            List.of("USER")
         );
      
         String token = VerificationFactory.generateToken();
@@ -104,7 +106,7 @@ public class AuthService {
     }
 
     // Takes temporary token, verifies it
-    public AuthResult verifyEmail(String email, String code){
+    public User verifyEmail(String email, String code){
         User user = _userRepository.findByEmail(email)
             .orElseThrow(() -> new InvalidCredentialsException("User not found"));
 
@@ -126,7 +128,7 @@ public class AuthService {
 
         _verificationRepository.delete(verification);
 
-        return new AuthResult(user.getId(), user.getEmail());
+        return user;
     }
 
     public TokenResult requestPasswordReset(String email){
