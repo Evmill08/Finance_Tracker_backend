@@ -6,25 +6,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.finance_tracker.Models.Plaid.LinkTokenResponse;
 import com.example.finance_tracker.Models.User.User;
-import com.example.finance_tracker.Models.User.UserResponse;
+import com.example.finance_tracker.Services.PlaidService;
 import com.example.finance_tracker.Services.UserService;
 
 
 @RestController
-@RequestMapping("/user")
-public class UserController {
-    
+@RequestMapping("plaid")
+public class PlaidController {
     private final UserService _userService;
+    private final PlaidService _plaidService;
 
-    public UserController(UserService userService){
+    public PlaidController(UserService userService, PlaidService plaidService){
         this._userService = userService;
+        this._plaidService = plaidService;
     }
-
-    @GetMapping("/user-information")
-    public ResponseEntity<UserResponse> getUserInformation(@AuthenticationPrincipal User userRequest) {
+    
+    @GetMapping("/create-link-token")
+    public ResponseEntity<LinkTokenResponse> getMethodName(@AuthenticationPrincipal User userRequest) {
         User user = _userService.getUserById(userRequest.getId());
-        UserResponse response = new UserResponse(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.hasLinkedPlaid());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(_plaidService.createLinkToken(user));
     }
+    
 }

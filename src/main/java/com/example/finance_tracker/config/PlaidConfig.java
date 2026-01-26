@@ -1,12 +1,13 @@
 package com.example.finance_tracker.config;
 
-import com.plaid.client.ApiClient;
-import com.plaid.client.request.PlaidApi;
+import java.util.HashMap;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
+import com.plaid.client.ApiClient;
+import com.plaid.client.request.PlaidApi;
 
 @Configuration
 public class PlaidConfig {
@@ -17,18 +18,22 @@ public class PlaidConfig {
     @Value("${plaid.secret}")
     private String secret;
 
-    @Value("${plaid.environment}")
-    private String environment;
+    @Value("${plaid.env}")
+    private String env;
 
     @Bean
-    public PlaidApi plaidClient() {
+    public PlaidApi plaidApi() {
         HashMap<String, String> apiKeys = new HashMap<>();
         apiKeys.put("clientId", clientId);
         apiKeys.put("secret", secret);
         apiKeys.put("plaidVersion", "2020-09-14");
 
         ApiClient apiClient = new ApiClient(apiKeys);
-        apiClient.setPlaidAdapter(ApiClient.Sandbox);
+
+        switch (env.toLowerCase()) {
+            case "production" -> apiClient.setPlaidAdapter(ApiClient.Production);
+            default -> apiClient.setPlaidAdapter(ApiClient.Sandbox);
+        }
 
         return apiClient.createService(PlaidApi.class);
     }
