@@ -3,14 +3,16 @@ package com.example.finance_tracker.Controllers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.finance_tracker.Models.Plaid.LinkTokenResponse;
+import com.example.finance_tracker.Models.Plaid.TokenExchangeResponse;
+import com.example.finance_tracker.Models.Plaid.TokenRequest;
 import com.example.finance_tracker.Models.User.User;
 import com.example.finance_tracker.Services.PlaidService;
 import com.example.finance_tracker.Services.UserService;
-
 
 @RestController
 @RequestMapping("plaid")
@@ -23,10 +25,21 @@ public class PlaidController {
         this._plaidService = plaidService;
     }
     
+    // Gets initial token to use for linkage
     @GetMapping("/create-link-token")
     public ResponseEntity<LinkTokenResponse> getMethodName(@AuthenticationPrincipal User userRequest) {
         User user = _userService.getUserById(userRequest.getId());
-        return ResponseEntity.ok(_plaidService.createLinkToken(user));
+        LinkTokenResponse response = _plaidService.createLinkToken(user);
+        return ResponseEntity.ok(response);
     }
+
     
+    // Gets the accessToken to be used in all future requests, as well as itemId to start getting financial data
+    @PostMapping("/exchange")
+    public ResponseEntity<TokenExchangeResponse> exchangeToken(@AuthenticationPrincipal User userRequest, TokenRequest request ) {
+        User user = _userService.getUserById(userRequest.getId());
+        TokenExchangeResponse response = _plaidService.exchangeToken(user, request.getToken());
+        return ResponseEntity.ok(response);
+    }
+  
 }

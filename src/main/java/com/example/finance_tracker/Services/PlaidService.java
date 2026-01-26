@@ -6,12 +6,15 @@ import java.util.Arrays;
 import org.springframework.stereotype.Service;
 
 import com.example.finance_tracker.Models.Plaid.LinkTokenResponse;
+import com.example.finance_tracker.Models.Plaid.TokenExchangeResponse;
 import com.example.finance_tracker.Models.User.User;
 import com.plaid.client.model.CountryCode;
 import com.plaid.client.model.CreditAccountSubtype;
 import com.plaid.client.model.CreditFilter;
 import com.plaid.client.model.DepositoryAccountSubtype;
 import com.plaid.client.model.DepositoryFilter;
+import com.plaid.client.model.ItemPublicTokenExchangeRequest;
+import com.plaid.client.model.ItemPublicTokenExchangeResponse;
 import com.plaid.client.model.LinkTokenAccountFilters;
 import com.plaid.client.model.LinkTokenCreateRequest;
 import com.plaid.client.model.LinkTokenCreateRequestUser;
@@ -34,10 +37,12 @@ public class PlaidService {
         this._plaidApi = plaidApi;
     }
     
+    // TODO: think about saving this or if we dont want to
+    // Is this something that should have to be re-instantiated if something were to fail??
     public LinkTokenResponse createLinkToken(User user){
         LinkTokenCreateRequestUser plaidUser = new LinkTokenCreateRequestUser().clientUserId(user.getId().toString());
 
-        // Don't need this, but this will be helpful later
+        // Don't need this, but this will be helpful to reference later
         LinkTokenTransactions transactions =  new LinkTokenTransactions()
             .daysRequested(730);
 
@@ -76,5 +81,25 @@ public class PlaidService {
         } catch (IOException e){
             throw new RuntimeException("Plaid link token creation failed", e);
         }
+    }
+
+    public TokenExchangeResponse exchangeToken(User user, String linkToken){
+        ItemPublicTokenExchangeRequest request = new ItemPublicTokenExchangeRequest()
+            .publicToken(linkToken);
+
+        try {
+            Response<ItemPublicTokenExchangeResponse> response = _plaidApi.itemPublicTokenExchange(request).execute();
+
+            if (!response.isSuccessful()){
+                throw new RuntimeException("Plaid token exchange was unsuccessful");
+            }
+
+            ItemPublicTokenExchangeResponse body = response.body();
+            return new TokenExchangeResponse(body.getAccessToken(), body.getItemId()); 
+
+        } catch (IOException e) {
+            throw new RuntimeException("Plaid token exchange failed", e);
+        }
+
     }
 }

@@ -13,14 +13,12 @@ public class LinkTokenResponse {
         return this.expiresAt;
     }
   
-
     public void setLinkToken(String linkToken){
         this.linkToken = linkToken;
     }
     public void setExpiresAt(Instant expiresAt){
         this.expiresAt = expiresAt;
     }
-
 
     public LinkTokenResponse(String linkToken, Instant expiresAt){
         this.linkToken = linkToken;
