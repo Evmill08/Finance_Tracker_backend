@@ -31,7 +31,6 @@ public class AuthController {
         this._jwtService = jwtService;
     }
 
-    // TODO: Ensure email hasnt been used before
     @PostMapping("/signup")
     public ResponseEntity<AuthApiResponse<String>> signup(@RequestBody AuthRequest request){
         TokenResult result = _authService.signup(request.email, request.password, request.firstName, request.lastName);
