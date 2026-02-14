@@ -1,14 +1,14 @@
 package com.example.finance_tracker.Models.User;
 
 public class UserResponse {
-    private Long Id;
+    private Long userId;
     private String email;
     private String firstName;
     private String lastName;
     private Boolean hasLinkedPlaid;
 
     public Long getUserId(){
-        return this.Id;
+        return this.userId;
     }
 
     public String getEmail(){
@@ -23,12 +23,32 @@ public class UserResponse {
         return this.lastName;
     }
 
-    public Boolean hasLinkedPlaid(){
+    public Boolean getHasLinkedPlaid(){
         return this.hasLinkedPlaid;
-    }    
+    }
 
-    public UserResponse(Long Id, String email, String firstName, String lastName, Boolean hasLinkedPlaid){
-        this.Id = Id;
+    public void setUserId(Long userId){
+        this.userId = userId;
+    }
+
+    public void setEmail(String email){
+        this.email = email;
+    }
+
+    public void setFirstName(String firstName){
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName){
+        this.lastName = lastName;
+    }
+
+    public void setHasLinkedPlaid(Boolean hasLinkedPlaid){
+        this.hasLinkedPlaid = hasLinkedPlaid;
+    }
+
+    public UserResponse(Long userId, String email, String firstName, String lastName, Boolean hasLinkedPlaid){
+        this.userId = userId;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
