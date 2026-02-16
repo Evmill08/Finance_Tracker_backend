@@ -43,6 +43,8 @@ public class AccountResponse {
     @Column(nullable=true)
     private String subtype;
 
+    public AccountResponse() {}
+
     public AccountResponse(User user, String accountId, Double currentBalance, String mask, String name, String officialName, String type, String subtype){
         this.user = user;
         this.accountId = accountId;
@@ -60,6 +62,10 @@ public class AccountResponse {
 
     public Double getCurrentBalance() {
         return currentBalance;
+    }
+
+    public String getMask(){
+        return this.mask;
     }
 
     public String getName() {
@@ -84,6 +90,10 @@ public class AccountResponse {
 
     public void setCurrentBalance(Double currentBalance) {
         this.currentBalance = currentBalance;
+    }
+
+    public void setMask(String mask){
+        this.mask = mask;
     }
 
     public void setName(String name) {

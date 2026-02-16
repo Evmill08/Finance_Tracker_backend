@@ -1,7 +1,5 @@
 package com.example.finance_tracker.Controllers;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.finance_tracker.Models.Plaid.AccountResponse;
 import com.example.finance_tracker.Models.Plaid.LinkTokenResponse;
 import com.example.finance_tracker.Models.Plaid.PlaidApiResponse;
 import com.example.finance_tracker.Models.Plaid.TokenExchangeResponse;
@@ -48,12 +45,4 @@ public class PlaidController {
         _plaidService.savePlaidAccount(user, response.getAccessToken(), response.getItemId());
         return ResponseEntity.ok(PlaidApiResponse.success(response));
     }
-
-    @PostMapping("/accounts")
-    public ResponseEntity<PlaidApiResponse<List<AccountResponse>>> getAccounts(@AuthenticationPrincipal User userRequest){
-        User user = _userService.getUserById(userRequest.getId());
-        List<AccountResponse> response = _plaidService.getAccounts(user);
-        return ResponseEntity.ok(PlaidApiResponse.success(response));
-    }
-
 }
