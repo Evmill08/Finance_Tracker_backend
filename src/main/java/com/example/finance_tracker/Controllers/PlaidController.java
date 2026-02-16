@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,9 +38,11 @@ public class PlaidController {
     
     // Gets the accessToken to be used in all future requests, as well as itemId to start getting financial data
     @PostMapping("/exchange")
-    public ResponseEntity<PlaidApiResponse<TokenExchangeResponse>> exchangeToken(@AuthenticationPrincipal User userRequest, TokenRequest request ) {
+    public ResponseEntity<PlaidApiResponse<TokenExchangeResponse>> exchangeToken(@AuthenticationPrincipal User userRequest, @RequestBody TokenRequest request ) {
         User user = _userService.getUserById(userRequest.getId());
         TokenExchangeResponse response = _plaidService.exchangeToken(user, request.getToken());
+        _userService.linkPlaid(user.getId());
+        _plaidService.savePlaidAccount(user, response.getAccessToken(), response.getItemId());
         return ResponseEntity.ok(PlaidApiResponse.success(response));
     }
 }

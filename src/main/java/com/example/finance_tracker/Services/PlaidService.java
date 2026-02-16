@@ -6,8 +6,11 @@ import java.util.Arrays;
 import org.springframework.stereotype.Service;
 
 import com.example.finance_tracker.Models.Plaid.LinkTokenResponse;
+import com.example.finance_tracker.Models.Plaid.PlaidAccount;
 import com.example.finance_tracker.Models.Plaid.TokenExchangeResponse;
 import com.example.finance_tracker.Models.User.User;
+import com.example.finance_tracker.Repositories.PlaidAccountRepository;
+import com.example.finance_tracker.Repositories.UserRepository;
 import com.plaid.client.model.CountryCode;
 import com.plaid.client.model.CreditAccountSubtype;
 import com.plaid.client.model.CreditFilter;
@@ -32,9 +35,13 @@ import retrofit2.Response;
 public class PlaidService {
 
     private final PlaidApi _plaidApi;
+    private final PlaidAccountRepository _plaidAccountRepository;
+    private final UserRepository _userRepository;
 
-    public PlaidService(PlaidApi plaidApi){
+    public PlaidService(PlaidApi plaidApi, PlaidAccountRepository plaidAccountRepository, UserRepository userRepository){
         this._plaidApi = plaidApi;
+        this._plaidAccountRepository = plaidAccountRepository;
+        this._userRepository = userRepository;
     }
     
     // TODO: think about saving this or if we dont want to
@@ -100,6 +107,18 @@ public class PlaidService {
         } catch (IOException e) {
             throw new RuntimeException("Plaid token exchange failed", e);
         }
+    }
 
+    public void savePlaidAccount(User user, String accessToken, String itemId){
+        User storedUser = _userRepository.findById(user.getId())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        PlaidAccount plaidAccount = new PlaidAccount(storedUser, accessToken, itemId);
+
+        if (_plaidAccountRepository.findByUserId(user.getId()).isPresent()){
+            throw new RuntimeException("Plaid account already exists for user");
+        }
+        
+        _plaidAccountRepository.save(plaidAccount);
     }
 }

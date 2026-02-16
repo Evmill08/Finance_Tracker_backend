@@ -19,4 +19,10 @@ public class UserService {
 
         return user;
     }
+
+    public void linkPlaid(Long userId){
+        User user = getUserById(userId);
+        user.setHasLinkedPlaid(true);
+        _userRepository.save(user);
+    }
 }
