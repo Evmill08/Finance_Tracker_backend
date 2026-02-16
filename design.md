@@ -29,3 +29,10 @@
     - Shows the amount spent, earned, and saved.
     - Checks if the savings limit was reached, if so, congratulates, otherwise, offers suggesstions
     - Shows what they spent the most on (item and category)
+
+
+Endpoints of Interest:
+    - transactions/sync: retrieves transactions associated with an Item and can fetch updates using a cursor to track which updates have already been seen.
+    - transactions/recurring: allows developers to receive a summary of the recurring outflow and inflow streams (expenses and deposits) from a user’s checking, savings or credit card accounts
+    - investments/holdings/get: allows developers to receive user-authorized stock position data for investment-type accounts.
+    - investments/transactions/get: allows developers to retrieve up to 24 months of user-authorized transaction data for investment accounts.
